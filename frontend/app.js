@@ -994,20 +994,68 @@ if (savedEmail && elements.sidebarUserEmail) {
     }
 
     // Parse Google OAuth redirect tokens from URL hash
-    const hash = window.location.hash;
-    if (hash) {
-        const params = new URLSearchParams(hash.substring(1)); // strip '#'
-        const accessToken = params.get('access_token');
+const hash = window.location.hash;
+
+if (hash && hash.includes("access_token")) {
+
+    try {
+
+        const params = new URLSearchParams(hash.substring(1));
+
+        const accessToken = params.get("access_token");
+
         if (accessToken) {
+
             const decoded = decodeJwt(accessToken);
+
             if (decoded && decoded.sub && decoded.email) {
+
+                // SAVE USER
                 localStorage.setItem("user_id", decoded.sub);
                 localStorage.setItem("user_email", decoded.email);
-                // Clear hash from URL bar
-                window.history.replaceState(null, null, window.location.pathname);
+
+                // UPDATE STATE
+                state.isLoggedIn = true;
+                state.currentUser = decoded.email;
+                state.userId = decoded.sub;
+
+                // UPDATE UI
+                if (elements.sidebarUserEmail) {
+                    elements.sidebarUserEmail.textContent = decoded.email;
+                }
+
+                // HIDE LOGIN
+                elements.loginSection.style.display = "none";
+
+                // SHOW APP
+                elements.appLayout.classList.remove("hidden");
+
+                setTimeout(() => {
+                    elements.appLayout.classList.remove("opacity-0", "scale-[0.98]");
+                }, 50);
+
+                // LOAD DATA
+                switchView("chat");
+                startStatsSimulation();
+                loadChatsAndSessions(decoded.sub);
+
+                // CLEAN URL
+                window.history.replaceState(
+                    null,
+                    null,
+                    window.location.pathname
+                );
+
+                showToast("Google login successful.", "success");
             }
         }
+
+    } catch (err) {
+
+        console.error("Google OAuth parsing failed:", err);
+        showToast("Google login failed.", "error");
     }
+}
 
     // AUTO LOGIN (Runs after initial elements and state setup)
     const savedUser = localStorage.getItem("user_email");
