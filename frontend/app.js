@@ -4,7 +4,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js";
 
 document.addEventListener('DOMContentLoaded', () => {
     const supabase = createClient(
-        "https://dznpypworynliyhyybnp.supabase.co/",
+        "https://dznpypworynliyhyybnp.supabase.co",
         "sb_publishable_8b0GCxtDFtVbSwsPnbjwKA_iiNbmsqt"
     );
     // Current application state
