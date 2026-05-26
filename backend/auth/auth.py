@@ -30,7 +30,7 @@ def google_login():
         {
             "provider": "google",
             "options": {
-                "redirect_to": "http://localhost:5500"
+                "redirect_to": "https://ai-faq-chatbot.vercel.app"
             }
         }
     )
