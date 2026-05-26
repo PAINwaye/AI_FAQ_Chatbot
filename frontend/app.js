@@ -148,7 +148,7 @@ if (savedEmail && elements.sidebarUserEmail) {
                 let response, data;
                 
                 if (state.authMode === 'login') {
-                    response = await fetch("http://127.0.0.1:8000/login", {
+                    response = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/login", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password })
@@ -159,7 +159,7 @@ if (savedEmail && elements.sidebarUserEmail) {
                         throw new Error(data.detail || "Login failed");
                     }
                 } else {
-                    response = await fetch("http://127.0.0.1:8000/signup", {
+                    response = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/signup", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password })
@@ -172,7 +172,7 @@ if (savedEmail && elements.sidebarUserEmail) {
                     
                     // Auto Login after successful signup
                     showToast('Operator registered. Authenticating...', 'success');
-                    const autoLoginResponse = await fetch("http://127.0.0.1:8000/login", {
+                    const autoLoginResponse = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/login", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password })
@@ -303,7 +303,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     // Load Chat Sessions from Database
     async function loadChatsAndSessions(userId) {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/load-chats/${userId}`);
+            const response = await fetch(`https://ai-faq-chatbot-adhithya.onrender.com/load-chats/${userId}`);
             if (!response.ok) {
                 throw new Error('Failed to load chat history');
             }
@@ -408,7 +408,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         showTypingIndicator();
         
         try {
-            const response = await fetch(`http://127.0.0.1:8000/load-messages/${sessionId}`);
+            const response = await fetch(`https://ai-faq-chatbot-adhithya.onrender.com/load-messages/${sessionId}`);
             if (!response.ok) {
                 throw new Error('Failed to load messages');
             }
@@ -440,7 +440,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         }
         
         try {
-            const response = await fetch('http://127.0.0.1:8000/create-chat', {
+            const response = await fetch('https://ai-faq-chatbot-adhithya.onrender.com/create-chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -471,7 +471,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     // Delete a chat session
     async function deleteChatSession(sessionId) {
         try {
-            const response = await fetch(`http://127.0.0.1:8000/delete-chat/${sessionId}`, {
+            const response = await fetch(`https://ai-faq-chatbot-adhithya.onrender.com/delete-chat/${sessionId}`, {
                 method: 'DELETE'
             });
             
@@ -514,7 +514,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     // Helper: Save message to backend database
     async function saveMessageToDatabase(sessionId, role, content) {
         try {
-            await fetch('http://127.0.0.1:8000/save-message', {
+            await fetch('https://ai-faq-chatbot-adhithya.onrender.com/save-message', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -750,7 +750,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         
             renderChatSessionsList();
             
-            await fetch("http://127.0.0.1:8000/update-chat-title", {
+            await fetch("https://ai-faq-chatbot-adhithya.onrender.com/update-chat-title", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -777,7 +777,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         showTypingIndicator();
     
         try {
-            const response = await fetch("http://127.0.0.1:8000/chat", {
+            const response = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -953,7 +953,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     if (elements.btnGoogleLogin) {
         elements.btnGoogleLogin.addEventListener('click', async () => {
             try {
-                const response = await fetch("http://127.0.0.1:8000/google-login");
+                const response = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/google-login");
                 const data = await response.json();
                 if (data.url) {
                     window.location.href = data.url;
