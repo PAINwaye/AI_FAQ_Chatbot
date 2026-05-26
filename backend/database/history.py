@@ -1,7 +1,7 @@
 from database.db import supabase
 
 
-# CREATE CHAT
+# CREATE CHAT SESSION
 def create_chat(user_id, title):
 
     response = supabase.table(
@@ -11,20 +11,28 @@ def create_chat(user_id, title):
         "title": title
     }).execute()
 
-    return response.data[0]["id"]
+    return response.data[0]
 
 
 # SAVE MESSAGE
-def save_message(session_id, role, content):
+def save_message(
+    session_id,
+    role,
+    content
+):
 
-    supabase.table("messages").insert({
+    response = supabase.table(
+        "messages"
+    ).insert({
         "session_id": session_id,
         "role": role,
         "content": content
     }).execute()
 
+    return response.data[0]
 
-# LOAD USER CHATS
+
+# LOAD CHATS
 def load_chats(user_id):
 
     response = supabase.table(
@@ -37,7 +45,7 @@ def load_chats(user_id):
     return response.data
 
 
-# LOAD CHAT MESSAGES
+# LOAD MESSAGES
 def load_messages(session_id):
 
     response = supabase.table(
@@ -54,7 +62,30 @@ def load_messages(session_id):
 def delete_chat(session_id):
 
     supabase.table(
+        "messages"
+    ).delete() \
+    .eq("session_id", session_id) \
+    .execute()
+
+    supabase.table(
         "chat_sessions"
     ).delete() \
     .eq("id", session_id) \
     .execute()
+
+    return {
+        "success": True
+    }
+    
+    # UPDATE CHAT TITLE
+def update_chat_title(session_id, title):
+
+    response = supabase.table(
+        "chat_sessions"
+    ).update({
+        "title": title
+    }).eq(
+        "id", session_id
+    ).execute()
+
+    return response.data
