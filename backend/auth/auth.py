@@ -23,20 +23,6 @@ def login_user(email, password):
     return response
 
 
-# GOOGLE LOGIN
-def google_login():
-
-    response = supabase.auth.sign_in_with_oauth(
-        {
-            "provider": "google",
-            "options": {
-                "redirect_to": "https://ai-faq-chatbot.vercel.app"
-            }
-        }
-    )
-
-    return response.url
-
 
 # LOGOUT
 def logout_user():

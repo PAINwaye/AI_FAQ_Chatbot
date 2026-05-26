@@ -957,18 +957,19 @@ if (savedEmail && elements.sidebarUserEmail) {
 
     // Google Login button event listener
     if (elements.btnGoogleLogin) {
+
         elements.btnGoogleLogin.addEventListener('click', async () => {
-            try {
-                const response = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/google-login");
-                const data = await response.json();
-                if (data.url) {
-                    window.location.href = data.url;
-                } else {
-                    throw new Error("No redirect URL returned");
+    
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: 'https://ai-faq-chatbot-ebon.vercel.app'
                 }
-            } catch (err) {
-                console.error(err);
-                showToast("Failed to initiate Google login", "error");
+            });
+    
+            if (error) {
+                console.error(error);
+                showToast("Google login failed", "error");
             }
         });
     }
