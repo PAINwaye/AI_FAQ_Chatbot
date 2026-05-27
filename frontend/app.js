@@ -694,9 +694,13 @@ if (savedEmail && elements.sidebarUserEmail) {
         div.className = 'flex justify-start mb-6';
         div.innerHTML = `
             <div class="flex items-start gap-3 max-w-[80%]">
-                <div class="w-8 h-8 rounded-full flex-shrink-0 bg-gradient-to-br from-primary-fixed to-surface-tint border border-primary-fixed/20 flex items-center justify-center text-xs font-bold text-on-primary-fixed shadow-[0_0_12px_rgba(205,242,0,0.25)]">
-                    BH
-                </div>
+                <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center">
+    <img
+        src="./assets/globe.png"
+        alt="AI Globe"
+        class="chat-ai-globe"
+    />
+</div>
                 <div class="flex flex-col items-start">
                     <div class="message-bubble-ai rounded-xl px-5 py-4 text-on-surface-variant flex items-center gap-1">
                         <span class="w-2 h-2 rounded-full bg-primary-fixed dot-typing"></span>
@@ -851,7 +855,10 @@ if (savedEmail && elements.sidebarUserEmail) {
     if (elements.suggestionCards) {
         elements.suggestionCards.forEach(card => {
             card.addEventListener('click', () => {
-                const prompt = card.getAttribute('data-prompt');
+    
+                const innerCard = card.querySelector('[data-prompt]');
+                const prompt = innerCard?.getAttribute('data-prompt');
+    
                 if (prompt) {
                     elements.chatInput.value = prompt;
                     elements.btnSendChat.classList.add('text-primary-fixed', 'opacity-100');
