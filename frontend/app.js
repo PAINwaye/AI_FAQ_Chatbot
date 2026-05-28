@@ -382,14 +382,18 @@ if (savedEmail && elements.sidebarUserEmail) {
         const sessionBtns = elements.sidebarChatSessions.querySelectorAll('.session-item');
         sessionBtns.forEach(btn => {
             btn.addEventListener('click', () => {
+        
                 const sessionId = btn.getAttribute('data-id');
                 const session = state.sessions.find(s => s.id === sessionId);
+        
                 if (session) {
+        
+                    switchView('chat');
+        
                     selectChatSession(session.id, session.title);
                 }
             });
         });
-        
         // Wire delete events
         const deleteBtns = elements.sidebarChatSessions.querySelectorAll('.btn-delete-session');
         deleteBtns.forEach(btn => {
