@@ -1,11 +1,9 @@
+import os
+
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
     Spacer
-)
-
-from reportlab.platypus import (
-    PageBreak
 )
 
 from reportlab.lib.styles import (
@@ -17,11 +15,18 @@ from reportlab.lib.units import inch
 
 def generate_pdf(
         faq_content,
-        filename="uploads/faq_output.pdf"
+        filename="faq_output.pdf"
 ):
     """
     Generate PDF from FAQ content.
     """
+
+    os.makedirs(
+        "uploads",
+        exist_ok=True
+    )
+
+    filename = "uploads/faq_output.pdf"
 
     doc = SimpleDocTemplate(
         filename
@@ -36,7 +41,9 @@ def generate_pdf(
         styles["Title"]
     )
 
-    story.append(title)
+    story.append(
+        title
+    )
 
     story.append(
         Spacer(
@@ -51,21 +58,38 @@ def generate_pdf(
 
     for line in sections:
 
-        paragraph = Paragraph(
-            line,
-            styles["BodyText"]
-        )
+        if not line.strip():
 
-        story.append(
-            paragraph
-        )
-
-        story.append(
-            Spacer(
-                1,
-                0.1 * inch
+            story.append(
+                Spacer(
+                    1,
+                    0.1 * inch
+                )
             )
-        )
+
+            continue
+
+        try:
+
+            paragraph = Paragraph(
+                line,
+                styles["BodyText"]
+            )
+
+            story.append(
+                paragraph
+            )
+
+            story.append(
+                Spacer(
+                    1,
+                    0.1 * inch
+                )
+            )
+
+        except Exception:
+
+            continue
 
     doc.build(
         story
