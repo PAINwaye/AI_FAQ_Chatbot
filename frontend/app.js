@@ -154,7 +154,7 @@ if (savedEmail && elements.sidebarUserEmail) {
                 let response, data;
                 
                 if (state.authMode === 'login') {
-                    response = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/login", {
+                    response = await fetch("https://aifaqchatbot-production.up.railway.app/login", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password })
@@ -165,7 +165,7 @@ if (savedEmail && elements.sidebarUserEmail) {
                         throw new Error(data.detail || "Login failed");
                     }
                 } else {
-                    response = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/signup", {
+                    response = await fetch("https://aifaqchatbot-production.up.railway.app/signup", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password })
@@ -178,7 +178,7 @@ if (savedEmail && elements.sidebarUserEmail) {
                     
                     // Auto Login after successful signup
                     showToast('Operator registered. Authenticating...', 'success');
-                    const autoLoginResponse = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/login", {
+                    const autoLoginResponse = await fetch("https://aifaqchatbot-production.up.railway.app/login", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password })
@@ -309,7 +309,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     // Load Chat Sessions from Database
     async function loadChatsAndSessions(userId) {
         try {
-            const response = await fetch(`https://ai-faq-chatbot-adhithya.onrender.com/load-chats/${userId}`);
+            const response = await fetch(`https://aifaqchatbot-production.up.railway.app/load-chats/${userId}`);
             if (!response.ok) {
                 throw new Error('Failed to load chat history');
             }
@@ -418,7 +418,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         showTypingIndicator();
         
         try {
-            const response = await fetch(`https://ai-faq-chatbot-adhithya.onrender.com/load-messages/${sessionId}`);
+            const response = await fetch(`https://aifaqchatbot-production.up.railway.app/load-messages/${sessionId}`);
             if (!response.ok) {
                 throw new Error('Failed to load messages');
             }
@@ -450,7 +450,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         }
         
         try {
-            const response = await fetch('https://ai-faq-chatbot-adhithya.onrender.com/create-chat', {
+            const response = await fetch('https://aifaqchatbot-production.up.railway.app/create-chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -481,7 +481,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     // Delete a chat session
     async function deleteChatSession(sessionId) {
         try {
-            const response = await fetch(`https://ai-faq-chatbot-adhithya.onrender.com/delete-chat/${sessionId}`, {
+            const response = await fetch(`https://aifaqchatbot-production.up.railway.app/delete-chat/${sessionId}`, {
                 method: 'DELETE'
             });
             
@@ -524,7 +524,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     // Helper: Save message to backend database
     async function saveMessageToDatabase(sessionId, role, content) {
         try {
-            await fetch('https://ai-faq-chatbot-adhithya.onrender.com/save-message', {
+            await fetch('https://aifaqchatbot-production.up.railway.app/save-message', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -790,7 +790,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         
             renderChatSessionsList();
             
-            await fetch("https://ai-faq-chatbot-adhithya.onrender.com/update-chat-title", {
+            await fetch("https://aifaqchatbot-production.up.railway.app/update-chat-title", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -817,7 +817,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         showTypingIndicator();
     
         try {
-            const response = await fetch("https://ai-faq-chatbot-adhithya.onrender.com/chat", {
+            const response = await fetch("https://aifaqchatbot-production.up.railway.app/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -854,7 +854,7 @@ if (downloadBtn) {
             try {
 
                 const response = await fetch(
-                    "https://ai-faq-chatbot-adhithya.onrender.com/download-faq-pdf",
+                    "https://aifaqchatbot-production.up.railway.app/download-faq-pdf",
                     {
                         method: "POST",
 
