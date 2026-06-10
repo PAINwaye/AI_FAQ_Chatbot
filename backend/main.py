@@ -23,10 +23,6 @@ from knowledge_base.chunker import (
     create_chunks
 )
 
-from knowledge_base.vector_store import (
-    add_to_vector_store
-)
-
 from auth.auth import (
     signup_user,
     login_user,
@@ -293,6 +289,9 @@ async def upload_documents(
 
         chunks = create_chunks(
             text
+        )
+        from knowledge_base.vector_store import (
+            add_to_vector_store
         )
 
         add_to_vector_store(

@@ -3,13 +3,22 @@ import os
 from langchain_community.vectorstores import FAISS
 from langchain_huggingface import HuggingFaceEmbeddings
 
-
 FAISS_PATH = "uploads/faiss_index"
 
+embedding_model = None
 
-embedding_model = HuggingFaceEmbeddings(
-    model_name="all-MiniLM-L6-v2"
-)
+
+def get_embedding_model():
+
+    global embedding_model
+
+    if embedding_model is None:
+
+        embedding_model = HuggingFaceEmbeddings(
+            model_name="all-MiniLM-L6-v2"
+        )
+
+    return embedding_model
 
 
 def load_vector_store():
@@ -18,7 +27,7 @@ def load_vector_store():
 
         return FAISS.load_local(
             FAISS_PATH,
-            embedding_model,
+            get_embedding_model(),
             allow_dangerous_deserialization=True
         )
 
@@ -29,16 +38,11 @@ def add_to_vector_store(
         chunks,
         source_name
 ):
-    """
-    Add chunks with metadata.
-    """
 
     metadata = [
-
         {
             "source": source_name
         }
-
         for _ in chunks
     ]
 
@@ -48,7 +52,7 @@ def add_to_vector_store(
 
         vector_store = FAISS.from_texts(
             texts=chunks,
-            embedding=embedding_model,
+            embedding=get_embedding_model(),
             metadatas=metadata
         )
 

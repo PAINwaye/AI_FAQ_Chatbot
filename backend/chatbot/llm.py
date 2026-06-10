@@ -2,7 +2,6 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import os
 
-from knowledge_base.retriever import retrieve_context
 
 load_dotenv()
 
@@ -15,6 +14,10 @@ client = OpenAI(
 def generate_response(messages):
 
     user_question = messages[-1]["content"]
+    
+    from knowledge_base.retriever import (
+        retrieve_context
+    )
 
     # Retrieve relevant context from KB
     retrieval_result = retrieve_context(
