@@ -6,3 +6,17 @@ supabase
 bcrypt
 requests
 python-multipart
+
+# Knowledge Base
+langchain
+langchain-community
+langchain-huggingface
+faiss-cpu
+sentence-transformers
+
+# Document Processing
+pypdf
+python-docx
+
+# PDF Generation
+reportlab
