@@ -564,7 +564,12 @@ if (savedEmail && elements.sidebarUserEmail) {
         });
     }
 
-    function createMessageElement(sender, text, timestamp = null) {
+    function createMessageElement(
+        sender,
+        text,
+        timestamp = null,
+        isFaq = false
+    ) {
         const div = document.createElement('div');
         div.className = `flex ${sender === 'user' ? 'justify-end' : 'justify-start'} mb-6`;
         
@@ -598,8 +603,29 @@ if (savedEmail && elements.sidebarUserEmail) {
 </div>
                     <div class="flex flex-col items-start">
                         <div class="message-bubble-ai rounded-xl p-4 text-on-surface text-sm leading-relaxed whitespace-pre-wrap">
-                            ${formatAiMessage(text)}
-                        </div>
+
+    ${formatAiMessage(text)}
+
+    ${
+        isFaq
+        ?
+        `
+        <button
+            class="download-pdf-btn mt-5"
+            data-faq="${encodeURIComponent(text)}"
+        >
+            <span class="material-symbols-outlined text-[18px]">
+                download
+            </span>
+
+            Download PDF
+        </button>
+        `
+        :
+        ""
+    }
+
+</div>
                         <span class="text-[10px] text-on-surface-variant/40 mt-1 ml-1 uppercase tracking-wider">${timeStr}</span>
                     </div>
                 </div>
@@ -809,8 +835,81 @@ if (savedEmail && elements.sidebarUserEmail) {
             removeTypingIndicator();
     
             // Add AI message to UI
-            const aiEl = createMessageElement('ai', data.response, timestamp);
+            const aiEl = createMessageElement(
+                'ai',
+                data.response,
+                timestamp,
+                data.is_faq
+            );
             elements.chatMessagesContainer.appendChild(aiEl);
+            const downloadBtn =
+    aiEl.querySelector(".download-pdf-btn");
+
+if (downloadBtn) {
+
+    downloadBtn.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                const response = await fetch(
+                    "https://ai-faq-chatbot-adhithya.onrender.com/download-faq-pdf",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            faq_content: decodeURIComponent(
+                                downloadBtn.dataset.faq
+                            )
+                        })
+                    }
+                );
+
+                const blob =
+                    await response.blob();
+
+                const url =
+                    window.URL.createObjectURL(blob);
+
+                const a =
+                    document.createElement("a");
+
+                a.href = url;
+
+                a.download =
+                    "faq_output.pdf";
+
+                a.click();
+
+                window.URL.revokeObjectURL(url);
+
+                showToast(
+                    "PDF downloaded successfully.",
+                    "success"
+                );
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                showToast(
+                    "PDF download failed.",
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+}
             scrollChatToBottom();
     
             showToast('AI response generated.', 'success');

@@ -1,10 +1,31 @@
-from fastapi import FastAPI
+from fastapi import (
+    FastAPI,
+    UploadFile,
+    File
+)
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from typing import List
+from typing import Annotated
+from fastapi.responses import FileResponse
+from faq.pdf_generator import (
+    generate_pdf
+)
 
 
 from chatbot.llm import generate_response
 from chatbot.prompts import get_system_prompt
+from knowledge_base.document_loader import (
+    extract_document_text
+)
+
+from knowledge_base.chunker import (
+    create_chunks
+)
+
+from knowledge_base.vector_store import (
+    add_to_vector_store
+)
 
 from auth.auth import (
     signup_user,
@@ -42,6 +63,9 @@ class ChatRequest(BaseModel):
 class AuthRequest(BaseModel):
     email: str
     password: str
+    
+class PDFRequest(BaseModel):
+    faq_content: str
 
 
 # ---------------- ROOT ---------------- #
@@ -76,10 +100,20 @@ async def chat(request: ChatRequest):
 
     response = generate_response(messages)
 
+    faq_keywords = [
+        "faq",
+        "faqs",
+        "generate faq",
+        "generate faqs"
+    ]
+    is_faq = any(
+        keyword in request.message.lower()
+        for keyword in faq_keywords
+    )
     return {
-        "response": response
+        "response": response,
+         "is_faq": is_faq
     }
-
 
 # ---------------- SIGNUP ---------------- #
 
@@ -202,3 +236,110 @@ async def update_chat_title(data: dict):
     )
 
     return result
+
+# ---------------- UPLOAD DOCUMENTS ---------------- #
+
+@app.post("/upload-documents")
+
+async def upload_documents(
+    files: Annotated[List[UploadFile], File()]
+):
+
+    if len(files) > 10:
+
+        return {
+            "error":
+            "Maximum 10 documents allowed."
+        }
+        
+    uploaded_files = []
+
+    total_chunks = 0
+
+    for file in files:
+
+        filename = file.filename.lower()
+        uploaded_files.append(
+        file.filename
+       )
+
+        if not filename.endswith(
+            (
+                ".pdf",
+                ".docx",
+                ".txt"
+            )
+        ):
+
+            return {
+                "error":
+                f"{file.filename} is not supported."
+            }
+
+        file_path = f"uploads/{file.filename}"
+
+        contents = await file.read()
+
+        with open(
+                file_path,
+                "wb"
+        ) as f:
+
+            f.write(contents)
+
+        text = extract_document_text(
+            file_path
+        )
+
+        chunks = create_chunks(
+            text
+        )
+
+        add_to_vector_store(
+            chunks,
+            file.filename
+        )
+
+        total_chunks += len(chunks)
+
+    document_names = ", ".join(
+        uploaded_files
+    )
+    response_message = f"""
+    {document_names} uploaded successfully and added to the shared knowledge base.
+    
+    You can now:
+    
+    • Generate FAQs from the documents.
+    • Generate FAQs from a specific section.
+    • Ask questions about the documents.
+    • Summarize the content.
+    • Compare multiple documents.
+
+    Or simply tell me what you'd like me to do.
+"""
+
+    return {
+        "message": response_message,
+        "documents_processed": len(files),
+        "chunks_added": total_chunks
+    }
+    
+
+# ---------------- DOWNLOAD FAQ PDF ---------------- #
+
+@app.post("/download-faq-pdf")
+
+async def download_faq_pdf(
+        request: PDFRequest
+):
+
+    pdf_path = generate_pdf(
+        request.faq_content
+    )
+
+    return FileResponse(
+        path=pdf_path,
+        filename="faq_output.pdf",
+        media_type="application/pdf"
+    )
