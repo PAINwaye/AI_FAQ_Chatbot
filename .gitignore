@@ -1,15 +1,21 @@
-# Environment variables and secrets
+# =========================
+# Environment variables
+# =========================
 .env
 .env.*
 !.env.example
 
-# Python virtual environments
+# =========================
+# Virtual environments
+# =========================
 .venv/
 venv/
 env/
 myenv/
 
-# Python bytecode and caches
+# =========================
+# Python caches
+# =========================
 __pycache__/
 *.py[cod]
 *$py.class
@@ -19,31 +25,49 @@ __pycache__/
 .pyre/
 .hypothesis/
 
-# Test coverage
+# =========================
+# Coverage
+# =========================
 .coverage
 .coverage.*
 htmlcov/
 coverage.xml
 
-# Python build and packaging
+# =========================
+# Build artifacts
+# =========================
 build/
 dist/
 *.egg-info/
 .eggs/
 pip-wheel-metadata/
 
-# Runtime data and generated indexes
-backend/uploads/*
-!backend/uploads/.gitkeep
-*.faiss
+# =========================
+# Uploads (IGNORE EVERYTHING)
+# =========================
+backend/uploads/
+backend/uploads/**
 
-# Logs and local databases
+# =========================
+# Vector stores and indexes
+# =========================
+*.faiss
+*.pkl
+*.pickle
+*.index
+*.bin
+
+# =========================
+# Databases and logs
+# =========================
 *.log
 *.sqlite
 *.sqlite3
 *.db
 
-# Frontend dependencies and build output
+# =========================
+# Node modules
+# =========================
 node_modules/
 .npm/
 .yarn/
@@ -54,7 +78,9 @@ node_modules/
 frontend/dist/
 frontend/build/
 
-# IDE and editor files
+# =========================
+# IDE files
+# =========================
 .idea/
 .vscode/
 *.code-workspace
@@ -62,7 +88,9 @@ frontend/build/
 *.swo
 *~
 
-# Operating system files
+# =========================
+# OS files
+# =========================
 .DS_Store
 Thumbs.db
 Desktop.ini
