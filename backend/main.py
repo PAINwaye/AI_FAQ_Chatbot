@@ -1,20 +1,34 @@
+
 from fastapi import (
     FastAPI,
     UploadFile,
-    File
+    File,
+    Form
 )
+
 from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
+
 from typing import List
+
 from typing import Annotated
+
 from fastapi.responses import FileResponse
+
 from faq.pdf_generator import (
     generate_pdf
 )
 
+from knowledge_base.retriever import (
+    retrieve_context
+)
+
 
 from chatbot.llm import generate_response
+
 from chatbot.prompts import get_system_prompt
+
 from knowledge_base.document_loader import (
     extract_document_text
 )
@@ -35,8 +49,13 @@ from database.history import (
     load_chats,
     load_messages,
     delete_chat,
-    update_chat_title
+    update_chat_title,
+    update_active_document,
+    get_active_document,
+    update_session_documents,
+    get_session_documents
 )
+
 
 app = FastAPI()
 
@@ -53,7 +72,10 @@ app.add_middleware(
 # ---------------- MODELS ---------------- #
 
 class ChatRequest(BaseModel):
+
     message: str
+
+    session_id: str
 
 
 class AuthRequest(BaseModel):
@@ -78,23 +100,187 @@ async def root():
 # ---------------- CHAT ---------------- #
 
 @app.post("/chat")
-
 async def chat(request: ChatRequest):
+
+    # Get current active document
+    active_document = get_active_document(
+        request.session_id
+    )
+    print(
+        "ACTIVE DOCUMENT:",
+        active_document
+    )
+    
+    message = request.message.lower()
+
+    faq_query = any(
+        keyword in message
+        for keyword in [
+            "faq",
+            "faqs",
+            "generate faq",
+            "generate faqs"
+        ]
+    )
+
+    summary_query = any(
+        keyword in message
+        for keyword in [
+            "summary",
+            "summaries",
+            "summarize",
+            "summarise",
+            "summarized",
+            "summarised"
+        ]
+    )
+
+    all_documents_query = any(
+        phrase in message
+        for phrase in [
+            "all documents",
+            "all the documents",
+            "every document",
+            "all files",
+            "all the files",
+            "all pdfs"
+        ]
+    )
+    comparison_query = (
+        "compare" in message
+    )
+    
+    print("\n====== QUERY TYPE ======")
+    print("FAQ:", faq_query)
+    print("SUMMARY:", summary_query)
+    print("ALL DOCS:", all_documents_query)
+    print("COMPARE:", comparison_query)
+    print(
+        "MESSAGE:",
+        request.message
+    )
+    print("========================\n")
+
+    # Get all documents in this session
+    documents = get_session_documents(
+        request.session_id
+    )
+    print(
+        "DOCUMENTS:",
+        documents
+    )
+
+    # Detect documents explicitly mentioned in user query
+    selected_documents = []
+
+    for doc in documents:
+
+        if doc.lower() in request.message.lower():
+
+            selected_documents.append(
+                doc
+            )
+
+    # If exactly one document is mentioned,
+    # make it the new active document
+    if len(selected_documents) == 1:
+
+        update_active_document(
+            request.session_id,
+            selected_documents[0]
+        )
+
+        active_document = selected_documents[0]
+
+    # Retrieve context
+    # ---------------- RETRIEVAL ROUTING ---------------- #
+
+    kb_data = {
+        "context": "",
+        "sources": []
+    }
+
+    # Case 1 : Generate FAQ/Summary for ALL documents
+    if all_documents_query:
+
+        kb_data = retrieve_context(
+            request.message,
+            request.session_id,
+            all_documents=True
+        )
+
+    # Case 2 : Compare or explicitly mention documents
+    elif len(selected_documents) > 0:
+
+        kb_data = retrieve_context(
+            request.message,
+            request.session_id,
+            selected_documents=selected_documents
+        )
+
+    # Case 3 : Active document operations
+    elif faq_query or summary_query:
+
+        kb_data = retrieve_context(
+            request.message,
+            request.session_id,
+            active_document=active_document
+        )
+        
+        print("\n===== AFTER RETRIEVAL =====")
+        print("KB Sources:", kb_data["sources"])
+        print("Context length:", len(kb_data["context"]))
+        print("===========================\n")
+
+    # Case 4 : General question
+    else:
+
+        kb_data = {
+
+            "context": "",
+
+            "sources": []
+
+        }
+
+    context = kb_data["context"]
 
     system_prompt = get_system_prompt()
 
+    if context:
+
+        system_prompt += f"""
+
+Use the following document context when answering.
+
+Document Context:
+
+{context}
+
+Rules:
+
+- Answer strictly using the document context.
+- If the answer is unavailable, say so.
+- Generate FAQs, summaries, comparisons and explanations based on the document.
+"""
+
     messages = [
+
         {
             "role": "system",
             "content": system_prompt
         },
+
         {
             "role": "user",
             "content": request.message
         }
+
     ]
 
-    response = generate_response(messages)
+    response = generate_response(
+        messages
+    )
 
     faq_keywords = [
         "faq",
@@ -102,13 +288,20 @@ async def chat(request: ChatRequest):
         "generate faq",
         "generate faqs"
     ]
+
     is_faq = any(
         keyword in request.message.lower()
         for keyword in faq_keywords
     )
+
     return {
+
         "response": response,
-         "is_faq": is_faq
+
+        "is_faq": is_faq,
+
+        "sources": kb_data["sources"]
+
     }
 
 # ---------------- SIGNUP ---------------- #
@@ -238,7 +431,8 @@ async def update_chat_title(data: dict):
 @app.post("/upload-documents")
 
 async def upload_documents(
-    files: Annotated[List[UploadFile], File()]
+    files: Annotated[List[UploadFile], File()],
+    session_id: str = Form(...)
 ):
 
     if len(files) > 10:
@@ -251,6 +445,12 @@ async def upload_documents(
     uploaded_files = []
 
     total_chunks = 0
+    existing_documents = get_session_documents(
+    session_id
+    )
+    print("\n========== BEFORE ==========")
+    print(existing_documents)
+    print("============================")
 
     for file in files:
 
@@ -258,6 +458,15 @@ async def upload_documents(
         uploaded_files.append(
         file.filename
        )
+        
+        if file.filename not in existing_documents:
+
+          existing_documents.append(
+           file.filename
+         )
+          
+          print("Appending:", file.filename)
+          print("Current list:", existing_documents)
 
         if not filename.endswith(
             (
@@ -296,27 +505,76 @@ async def upload_documents(
 
         add_to_vector_store(
             chunks,
-            file.filename
+            file.filename,
+            session_id
         )
 
         total_chunks += len(chunks)
-
-    document_names = ", ".join(
-        uploaded_files
+        
+    print("\n========== SAVING ==========")
+    print(existing_documents)
+    print("============================")    
+    
+    update_session_documents(
+    session_id,
+    existing_documents
     )
-    response_message = f"""
-    {document_names} uploaded successfully and added to the shared knowledge base.
-    
-    You can now:
-    
-    • Generate FAQs from the documents.
-    • Generate FAQs from a specific section.
-    • Ask questions about the documents.
-    • Summarize the content.
-    • Compare multiple documents.
 
-    Or simply tell me what you'd like me to do.
-"""
+    update_active_document(
+    session_id,
+    uploaded_files[-1]
+    )
+
+    # ---------------- RESPONSE MESSAGE ---------------- #
+
+    if len(uploaded_files) == 1:
+
+        response_message = f"""
+    {uploaded_files[0]} uploaded successfully.
+
+    You can now:
+
+    • Generate FAQs from the document.
+
+    • Summarize the document.
+
+    • Ask questions about the document.
+
+    • Tell me what you'd like to do with the document.
+    """
+
+    else:
+
+        document_list = "\n".join(
+            [
+                f"• {doc}"
+                for doc in uploaded_files
+            ]
+        )
+
+        response_message = f"""
+    Documents uploaded successfully.
+
+    Available documents
+
+    {document_list}
+
+    You can:
+
+    • Generate FAQ for all documents.
+
+    • Summarize all documents.
+
+    • Generate FAQ for a specific document by mentioning its name.
+
+    • Summarize a specific document by mentioning its name.
+
+    • Ask questions about any document by mentioning its name.
+
+    • Compare documents.
+
+    • Tell me what you'd like to do.
+    """
 
     return {
         "message": response_message,

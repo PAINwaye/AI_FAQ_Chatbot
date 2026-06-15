@@ -23,7 +23,18 @@ def get_embedding_model():
 
 def load_vector_store():
 
-    if os.path.exists(FAISS_PATH):
+    index_file = os.path.join(
+        FAISS_PATH,
+        "index.faiss"
+    )
+
+    if not os.path.exists(
+        index_file
+    ):
+
+        return None
+
+    try:
 
         return FAISS.load_local(
             FAISS_PATH,
@@ -31,19 +42,49 @@ def load_vector_store():
             allow_dangerous_deserialization=True
         )
 
-    return None
+    except Exception as e:
+
+        print(
+            f"Error loading FAISS index: {e}"
+        )
+
+        return None
 
 
 def add_to_vector_store(
         chunks,
-        source_name
+        source_name,
+        session_id
 ):
 
+    # Remove empty chunks
+    chunks = [
+
+        chunk.strip()
+
+        for chunk in chunks
+
+        if chunk and chunk.strip()
+
+    ]
+
+    if len(chunks) == 0:
+
+        print(
+            f"No valid chunks found for {source_name}"
+        )
+
+        return load_vector_store()
+
     metadata = [
+
         {
-            "source": source_name
+            "source": source_name,
+            "session_id": session_id
         }
+
         for _ in chunks
+
     ]
 
     vector_store = load_vector_store()
@@ -60,8 +101,14 @@ def add_to_vector_store(
 
         vector_store.add_texts(
             texts=chunks,
-            metadatas=metadata
+            metadatas=metadata,
+            embedding=get_embedding_model()
         )
+
+    os.makedirs(
+        FAISS_PATH,
+        exist_ok=True
+    )
 
     vector_store.save_local(
         FAISS_PATH

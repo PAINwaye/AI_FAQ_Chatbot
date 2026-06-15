@@ -232,12 +232,6 @@
             <nav class="flex-grow py-6 px-4 space-y-1.5 overflow-y-auto">
                 <p class="text-[10px] text-on-surface-variant/40 font-semibold px-3 uppercase tracking-widest mb-2">Workspace Navigation</p>
                 <ul>
-                    <li id="nav-dashboard-li" class="rounded-xl transition-all">
-                        <button id="nav-dashboard" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-on-surface hover:text-primary transition-colors text-left">
-                            <span class="material-symbols-outlined text-lg">dashboard</span>
-                            <span>System Dashboard</span>
-                        </button>
-                    </li>
                     <li id="nav-chat-li" class="rounded-xl transition-all">
                         <button id="nav-chat" class="w-full flex items-center gap-3 px-4 py-3 text-sm font-semibold text-on-surface hover:text-primary transition-colors text-left">
                             <span class="material-symbols-outlined text-lg">chat</span>
@@ -279,193 +273,6 @@
             <!-- Workspace Content area -->
             <main class="flex-grow p-gutter md:p-8 max-w-7xl w-full mx-auto flex flex-col">
 
-                <!-- ==================== VIEW A: SYSTEM DASHBOARD ==================== -->
-                <div id="view-dashboard" class="view-section space-y-stack-gap flex-grow flex flex-col">
-                    <!-- Welcome Hero Banner -->
-                    <div class="glass-card rounded-3xl p-6 md:p-8 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                        <div class="relative z-10 text-center md:text-left space-y-2">
-                            <h2 class="font-headline-md text-2xl text-primary font-bold">Systems Online, operator.</h2>
-                            <p class="text-sm text-on-surface-variant/80 max-w-lg leading-relaxed">
-                                BuildHub AI core metrics are operating within baseline thresholds. Agent processes are initialized and waiting instructions.
-                            </p>
-                        </div>
-                        <div class="flex items-center gap-6 relative z-10 bg-surface-container-lowest/50 border border-outline-variant/10 p-4 rounded-2xl w-full md:w-auto justify-around">
-                            <div class="text-center">
-                                <span class="text-[9px] text-on-surface-variant uppercase tracking-wider block mb-1">LOCAL TIME</span>
-                                <span class="text-sm font-bold text-primary font-mono" id="live-clock">17:40:49</span>
-                            </div>
-                            <div class="w-px h-8 bg-outline-variant/20"></div>
-                            <div class="text-center">
-                                <span class="text-[9px] text-on-surface-variant uppercase tracking-wider block mb-1">UPTIME</span>
-                                <span class="text-sm font-bold text-primary font-mono">99.98%</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Metrics Stats Grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
-                        <!-- Stat Card 1 -->
-                        <div class="glass-card glass-card-hover rounded-2xl p-5 flex flex-col justify-between h-36 transition-all duration-300">
-                            <div class="flex items-start justify-between">
-                                <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">API LATENCY</span>
-                                <span class="material-symbols-outlined text-primary-fixed text-lg">bolt</span>
-                            </div>
-                            <div>
-                                <span class="text-3xl font-bold text-primary font-mono" id="stat-latency">142ms</span>
-                                <p class="text-[10px] text-on-surface-variant/60 mt-1 uppercase tracking-wider">Optimal response index</p>
-                            </div>
-                        </div>
-                        <!-- Stat Card 2 -->
-                        <div class="glass-card glass-card-hover rounded-2xl p-5 flex flex-col justify-between h-36 transition-all duration-300">
-                            <div class="flex items-start justify-between">
-                                <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">CORE COMPUTE</span>
-                                <span class="material-symbols-outlined text-primary-fixed text-lg">memory</span>
-                            </div>
-                            <div>
-                                <span class="text-3xl font-bold text-primary font-mono" id="stat-cpu">4.2%</span>
-                                <p class="text-[10px] text-on-surface-variant/60 mt-1 uppercase tracking-wider">Distributed CPU node allocation</p>
-                            </div>
-                        </div>
-                        <!-- Stat Card 3 -->
-                        <div class="glass-card glass-card-hover rounded-2xl p-5 flex flex-col justify-between h-36 transition-all duration-300">
-                            <div class="flex items-start justify-between">
-                                <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">ACTIVE CONNECTIONS</span>
-                                <span class="material-symbols-outlined text-primary-fixed text-lg">hub</span>
-                            </div>
-                            <div>
-                                <span class="text-3xl font-bold text-primary font-mono" id="stat-sessions">12</span>
-                                <p class="text-[10px] text-on-surface-variant/60 mt-1 uppercase tracking-wider">Live synchronized sessions</p>
-                            </div>
-                        </div>
-                        <!-- Stat Card 4 -->
-                        <div class="glass-card glass-card-hover rounded-2xl p-5 flex flex-col justify-between h-36 transition-all duration-300">
-                            <div class="flex items-start justify-between">
-                                <span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider">TOKEN BANDWIDTH</span>
-                                <span class="material-symbols-outlined text-primary-fixed text-lg">speed</span>
-                            </div>
-                            <div class="space-y-1">
-                                <div class="flex justify-between items-baseline">
-                                    <span class="text-2xl font-bold text-primary font-mono">4.2M</span>
-                                    <span class="text-[10px] text-on-surface-variant font-mono">/ 10M limit</span>
-                                </div>
-                                <div class="w-full bg-surface-container-lowest h-1.5 rounded-full overflow-hidden border border-outline-variant/10">
-                                    <div class="bg-primary-fixed h-full rounded-full shadow-[0_0_8px_#cdf200]" style="width: 42%;"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- AI Core Orb Display & Dynamic Control -->
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter flex-grow">
-                        <!-- Column 1 & 2: Large Visual Orb and status -->
-                        <div class="glass-card rounded-3xl p-6 md:p-8 lg:col-span-2 flex flex-col items-center justify-center relative overflow-hidden min-h-[380px]">
-                            <!-- Rotating vector layout -->
-                            <div class="relative w-72 h-72 flex items-center justify-center">
-                                <div class="orb-rings-dashboard spin-slow" style="width: 270px; height: 270px; border-width: 1px;"></div>
-                                <div class="orb-rings-dashboard spin-reverse-fast" style="width: 230px; height: 230px; border-width: 1px; border-style: dashed;"></div>
-                                <div class="orb-rings-dashboard spin-slow" style="width: 195px; height: 195px; border-width: 2px; border-color: rgba(205, 242, 0, 0.1);"></div>
-                                <!-- Pulse Orb Core -->
-                                <div class="orb-core-dashboard cursor-pointer" onclick="showToast('AI core pulse check completed. Synapses optimized.', 'success')"></div>
-                            </div>
-                            <div class="text-center mt-6 z-10">
-                                <h3 class="text-lg font-bold text-primary font-headline-md">NEON SYNTHESIS CORE</h3>
-                                <p class="text-xs text-on-surface-variant/80 mt-1 max-w-sm">
-                                    Pulsating gaseous orb simulator. Interact with the core above or use active chat workspace inputs.
-                                </p>
-                            </div>
-                        </div>
-
-                        <!-- Column 3: Active Orchestration Agents -->
-                        <div class="glass-card rounded-3xl p-6 flex flex-col justify-between">
-                            <div>
-                                <h3 class="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b border-outline-variant/10 pb-2">Active Micro-Agents</h3>
-                                <ul class="space-y-3.5">
-                                    <!-- Agent item -->
-                                    <li class="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest/40 border border-outline-variant/10">
-                                        <div class="flex items-center gap-3">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-primary-fixed shadow-[0_0_6px_#cdf200]"></span>
-                                            <div>
-                                                <h4 class="text-xs font-bold text-primary">UI Component Generator</h4>
-                                                <span class="text-[9px] text-on-surface-variant uppercase tracking-wider">Active execution state</span>
-                                            </div>
-                                        </div>
-                                        <button onclick="switchView('chat')" class="text-xs text-primary-fixed hover:underline uppercase font-bold text-[10px] tracking-wider">Monitor</button>
-                                    </li>
-                                    <!-- Agent item -->
-                                    <li class="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest/40 border border-outline-variant/10">
-                                        <div class="flex items-center gap-3">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-yellow-500 shadow-[0_0_6px_rgba(234,179,8,0.5)]"></span>
-                                            <div>
-                                                <h4 class="text-xs font-bold text-primary">SEO Web Auditor</h4>
-                                                <span class="text-[9px] text-on-surface-variant uppercase tracking-wider">Awaiting query parameters</span>
-                                            </div>
-                                        </div>
-                                        <button onclick="switchView('chat')" class="text-xs text-primary-fixed hover:underline uppercase font-bold text-[10px] tracking-wider">Deploy</button>
-                                    </li>
-                                    <!-- Agent item -->
-                                    <li class="flex items-center justify-between p-3 rounded-xl bg-surface-container-lowest/40 border border-outline-variant/10">
-                                        <div class="flex items-center gap-3">
-                                            <span class="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_6px_rgba(34,197,94,0.5)]"></span>
-                                            <div>
-                                                <h4 class="text-xs font-bold text-primary">DB Schema Indexer</h4>
-                                                <span class="text-[9px] text-on-surface-variant uppercase tracking-wider">Compilation completed</span>
-                                            </div>
-                                        </div>
-                                        <button onclick="switchView('chat')" class="text-xs text-primary-fixed hover:underline uppercase font-bold text-[10px] tracking-wider">Inspect</button>
-                                    </li>
-                                </ul>
-                            </div>
-                            <div class="mt-6 pt-4 border-t border-outline-variant/10">
-                                <button onclick="switchView('chat')" class="w-full bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/15 text-primary text-xs font-bold py-3 rounded-xl transition-all uppercase tracking-widest text-center block">
-                                    Initiate Process Cycle
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- System Event Log -->
-                    <div class="glass-card rounded-3xl p-6">
-                        <h3 class="text-sm font-bold text-primary uppercase tracking-wider mb-4 border-b border-outline-variant/10 pb-2">System Sync Log</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs text-on-surface-variant">
-                                <thead>
-                                    <tr class="border-b border-outline-variant/10 text-[10px] uppercase text-on-surface-variant/40 tracking-wider">
-                                        <th class="py-2.5">PROCESS LOG ENTRY</th>
-                                        <th class="py-2.5">STATUS</th>
-                                        <th class="py-2.5">SEVERITY</th>
-                                        <th class="py-2.5 text-right">TIMESTAMP</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-outline-variant/5 font-mono">
-                                    <tr>
-                                        <td class="py-3 text-primary">SYNC_OK: Core session synchronized with operator clearance</td>
-                                        <td class="py-3"><span class="text-primary-fixed">SUCCESS</span></td>
-                                        <td class="py-3 text-on-surface-variant/60">INFO</td>
-                                        <td class="py-3 text-right">Just now</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 text-primary">DB_ANALYZE: SQL index optimizations generated for table user_sessions</td>
-                                        <td class="py-3"><span class="text-green-400">COMPLETE</span></td>
-                                        <td class="py-3 text-on-surface-variant/60">INFO</td>
-                                        <td class="py-3 text-right">3 mins ago</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 text-primary">SECURITY: Outdated audit packages in root modules detected</td>
-                                        <td class="py-3"><span class="text-yellow-400">WARN</span></td>
-                                        <td class="py-3 text-yellow-400/80">LOW</td>
-                                        <td class="py-3 text-right">10 mins ago</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="py-3 text-primary">SYSTEM: Automated mesh grid coordinates initialized</td>
-                                        <td class="py-3"><span class="text-primary-fixed">SUCCESS</span></td>
-                                        <td class="py-3 text-on-surface-variant/60">INFO</td>
-                                        <td class="py-3 text-right">12 mins ago</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
 
                 <!-- ==================== VIEW B: ACTIVE CHAT FLOW ==================== -->
                 <div id="view-chat" class="view-section view-hidden flex-grow flex flex-col h-[calc(100vh-140px)]">
@@ -488,7 +295,11 @@
                     </div>
 
                     <!-- Suggestions / Capability cards grid -->
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                    <div
+                    id="suggestion-container"
+                    class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4"
+                >
+
                         <div class="suggestion-card cursor-pointer">
                             <div 
                                 class="glass-card rounded-2xl p-5 h-full border border-outline-variant/20 hover:border-primary-fixed/40 transition-all duration-300 hover:shadow-[0_0_25px_rgba(205,242,0,0.08)] group"
@@ -560,8 +371,18 @@
                     <!-- Floating Translucent Input Bar -->
                     <div class="relative bg-surface-container-low/75 border border-outline-variant/20 rounded-2xl px-4 py-3 flex items-end gap-3 shadow-[0_15px_40px_-15px_rgba(0,0,0,0.5)] focus-within:ring-1 focus-within:ring-primary-fixed focus-within:border-primary-fixed transition-all">
                         <textarea id="chat-input" rows="1" placeholder="Instruct the AI..." class="flex-grow bg-transparent border-0 outline-none focus:outline-none focus:ring-0 p-0 text-sm text-primary placeholder:text-on-secondary/50 resize-none h-[22px] max-h-40 leading-relaxed"></textarea>
-                        
+                        <input type="file" id="document-upload" multiple accept=".pdf,.docx,.txt" class="hidden"/>
                         <div class="flex items-center gap-1.5 flex-shrink-0">
+                            <!-- Upload Button -->
+<button
+id="btn-upload-document"
+class="w-8 h-8 rounded-xl bg-surface-container-high hover:bg-primary-fixed hover:text-on-primary-fixed text-on-surface-variant flex items-center justify-center transition-all"
+title="Upload documents"
+>
+<span class="material-symbols-outlined text-base">
+    attach_file
+</span>
+</button>
                             <!-- Send button -->
                             <button id="btn-send-chat" class="w-8 h-8 rounded-xl bg-surface-container-high hover:bg-primary-fixed hover:text-on-primary-fixed text-on-surface-variant flex items-center justify-center transition-all" title="Transmit command">
                                 <span class="material-symbols-outlined text-base">arrow_forward</span>

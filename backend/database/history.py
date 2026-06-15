@@ -89,3 +89,81 @@ def update_chat_title(session_id, title):
     ).execute()
 
     return response.data
+
+# UPDATE ACTIVE DOCUMENT
+def update_active_document(
+    session_id,
+    document_name
+):
+
+    response = supabase.table(
+        "chat_sessions"
+    ).update(
+        {
+            "active_document": document_name
+        }
+    ).eq(
+        "id",
+        session_id
+    ).execute()
+
+    return response.data
+
+
+# GET ACTIVE DOCUMENT
+def get_active_document(
+    session_id
+):
+
+    response = supabase.table(
+        "chat_sessions"
+    ).select(
+        "active_document"
+    ).eq(
+        "id",
+        session_id
+    ).single().execute()
+
+    return response.data.get(
+        "active_document"
+    )
+
+
+# UPDATE DOCUMENT LIST
+def update_session_documents(
+    session_id,
+    documents
+):
+
+    response = supabase.table(
+        "chat_sessions"
+    ).update(
+        {
+            "documents": documents
+        }
+    ).eq(
+        "id",
+        session_id
+    ).execute()
+
+    return response.data
+
+
+# GET DOCUMENT LIST
+def get_session_documents(
+    session_id
+):
+
+    response = supabase.table(
+        "chat_sessions"
+    ).select(
+        "documents"
+    ).eq(
+        "id",
+        session_id
+    ).single().execute()
+
+    return response.data.get(
+        "documents",
+        []
+    )

@@ -29,7 +29,7 @@ def google_login():
     response = supabase.auth.sign_in_with_oauth({
         "provider": "google",
         "options": {
-            "redirect_to": "https://ai-faq-chatbot-ebon.vercel.app"
+            "redirect_to": "http://localhost:5500"
         }
     })
 

@@ -40,18 +40,16 @@ document.addEventListener('DOMContentLoaded', () => {
         loginSection: document.getElementById('login-section'),
         appLayout: document.getElementById('app-layout'),
         sidebarUserEmail: document.getElementById('sidebar-user-email'),
+
         
         // Navigation buttons
-        btnNavDashboard: document.getElementById('nav-dashboard'),
         btnNavChat: document.getElementById('nav-chat'),
         btnNavLogout: document.getElementById('nav-logout'),
 
         // Nav indicators/icons
-        navDashboardLi: document.getElementById('nav-dashboard-li'),
         navChatLi: document.getElementById('nav-chat-li'),
 
         // View panels
-        viewDashboard: document.getElementById('view-dashboard'),
         viewChat: document.getElementById('view-chat'),
         viewSettings: document.getElementById('view-settings'),
 
@@ -69,6 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chatMessagesContainer: document.getElementById('chat-messages-container'),
         chatInput: document.getElementById('chat-input'),
         btnSendChat: document.getElementById('btn-send-chat'),
+        btnUploadDocument:document.getElementById('btn-upload-document'),
+        documentUpload:document.getElementById('document-upload'),
         chatTitle: document.getElementById('chat-title'),
         sidebarUserEmail: document.getElementById('sidebar-user-email'),
         sidebarChatSessions: document.getElementById('sidebar-chat-sessions'),
@@ -154,7 +154,7 @@ if (savedEmail && elements.sidebarUserEmail) {
                 let response, data;
                 
                 if (state.authMode === 'login') {
-                    response = await fetch("https://aifaqchatbot-production.up.railway.app/login", {
+                    response = await fetch("http://127.0.0.1:8000/login", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password })
@@ -165,7 +165,7 @@ if (savedEmail && elements.sidebarUserEmail) {
                         throw new Error(data.detail || "Login failed");
                     }
                 } else {
-                    response = await fetch("https://aifaqchatbot-production.up.railway.app/signup", {
+                    response = await fetch("http://127.0.0.1:8000/signup", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password })
@@ -178,7 +178,7 @@ if (savedEmail && elements.sidebarUserEmail) {
                     
                     // Auto Login after successful signup
                     showToast('Operator registered. Authenticating...', 'success');
-                    const autoLoginResponse = await fetch("https://aifaqchatbot-production.up.railway.app/login", {
+                    const autoLoginResponse = await fetch("http://127.0.0.1:8000/login", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email, password })
@@ -232,19 +232,14 @@ if (savedEmail && elements.sidebarUserEmail) {
         state.activeView = viewName;
         
         // Hide all views
-        elements.viewDashboard.classList.add('view-hidden');
         elements.viewChat.classList.add('view-hidden');
     
 
         // Reset nav highlights
-        elements.navDashboardLi.classList.remove('nav-indicator-active', 'bg-surface-container/60', 'text-primary-fixed');
         elements.navChatLi.classList.remove('nav-indicator-active', 'bg-surface-container/60', 'text-primary-fixed');
 
         // Show targets
-        if (viewName === 'dashboard') {
-            elements.viewDashboard.classList.remove('view-hidden');
-            elements.navDashboardLi.classList.add('nav-indicator-active', 'bg-surface-container/60', 'text-primary-fixed');
-        } else if (viewName === 'chat') {
+         if (viewName === 'chat') {
             elements.viewChat.classList.remove('view-hidden');
             elements.navChatLi.classList.add('nav-indicator-active', 'bg-surface-container/60', 'text-primary-fixed');
             renderChatHistory();
@@ -253,7 +248,6 @@ if (savedEmail && elements.sidebarUserEmail) {
     }
 
     // Sidebar navigation event wiring
-    elements.btnNavDashboard.addEventListener('click', () => switchView('dashboard'));
     elements.btnNavChat.addEventListener('click', () => switchView('chat'));
     elements.btnNavLogout.addEventListener('click', () => {
         state.isLoggedIn = false;
@@ -297,7 +291,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         });
         
         // Auto-close menu drawer when selecting options in mobile
-        [elements.btnNavDashboard, elements.btnNavChat, elements.btnNavLogout].forEach(btn => {
+        [elements.btnNavChat, elements.btnNavLogout].forEach(btn => {
             btn.addEventListener('click', () => {
                 if (window.innerWidth < 1024) {
                     sidebarElement.classList.add('-translate-x-full');
@@ -309,7 +303,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     // Load Chat Sessions from Database
     async function loadChatsAndSessions(userId) {
         try {
-            const response = await fetch(`https://aifaqchatbot-production.up.railway.app/load-chats/${userId}`);
+            const response = await fetch(`http://127.0.0.1:8000/load-chats/${userId}`);
             if (!response.ok) {
                 throw new Error('Failed to load chat history');
             }
@@ -418,7 +412,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         showTypingIndicator();
         
         try {
-            const response = await fetch(`https://aifaqchatbot-production.up.railway.app/load-messages/${sessionId}`);
+            const response = await fetch(`http://127.0.0.1:8000/load-messages/${sessionId}`);
             if (!response.ok) {
                 throw new Error('Failed to load messages');
             }
@@ -426,11 +420,47 @@ if (savedEmail && elements.sidebarUserEmail) {
             const messages = await response.json();
             removeTypingIndicator();
             
-            state.chatHistory[sessionId] = messages.map(msg => ({
-                sender: (msg.role === 'user') ? 'user' : 'ai',
-                text: msg.content,
-                timestamp: formatTimestamp(msg.created_at)
-            }));
+            state.chatHistory[sessionId] = messages.map(msg => {
+
+                const sender =
+                    (msg.role === 'user')
+                    ? 'user'
+                    : 'ai';
+            
+                const text = msg.content;
+            
+                const isFaq =
+                    sender === 'ai'
+                    &&
+                    (
+                        text.toLowerCase().includes(
+                            "frequently asked questions"
+                        )
+                        ||
+                        text.toLowerCase().includes(
+                            "# frequently asked questions"
+                        )
+                        ||
+                        text.includes(
+                            "## 1."
+                        )
+                    );
+            
+                return {
+            
+                    sender: sender,
+            
+                    text: text,
+            
+                    timestamp: formatTimestamp(
+                        msg.created_at
+                    ),
+            
+                    isFaq: isFaq
+            
+                };
+            
+            });
             
             renderChatHistory();
             scrollChatToBottom(true);
@@ -450,7 +480,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         }
         
         try {
-            const response = await fetch('https://aifaqchatbot-production.up.railway.app/create-chat', {
+            const response = await fetch('http://127.0.0.1:8000/create-chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -468,6 +498,7 @@ if (savedEmail && elements.sidebarUserEmail) {
             const newSession = await response.json();
             state.sessions.unshift(newSession);
             state.chatHistory[newSession.id] = [];
+        
             
             showToast('New session synchronized.', 'success');
             await selectChatSession(newSession.id, newSession.title);
@@ -481,7 +512,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     // Delete a chat session
     async function deleteChatSession(sessionId) {
         try {
-            const response = await fetch(`https://aifaqchatbot-production.up.railway.app/delete-chat/${sessionId}`, {
+            const response = await fetch(`http://127.0.0.1:8000/delete-chat/${sessionId}`, {
                 method: 'DELETE'
             });
             
@@ -524,7 +555,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     // Helper: Save message to backend database
     async function saveMessageToDatabase(sessionId, role, content) {
         try {
-            await fetch('https://aifaqchatbot-production.up.railway.app/save-message', {
+            await fetch('http://127.0.0.1:8000/save-message', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -555,12 +586,21 @@ if (savedEmail && elements.sidebarUserEmail) {
             return;
         }
         
-        const messages = state.chatHistory[state.activeChatSession] || [];
-        elements.chatMessagesContainer.innerHTML = '';
-
-        messages.forEach(msg => {
-            const msgEl = createMessageElement(msg.sender, msg.text, msg.timestamp);
-            elements.chatMessagesContainer.appendChild(msgEl);
+        const messages = state.chatHistory[state.activeChatSession]
+        .forEach(message => {
+        
+            const messageElement =
+                createMessageElement(
+                    message.sender,
+                    message.text,
+                    message.timestamp,
+                    message.isFaq
+                );
+        
+            elements.chatMessagesContainer.appendChild(
+                messageElement
+            );
+        
         });
     }
 
@@ -755,6 +795,7 @@ if (savedEmail && elements.sidebarUserEmail) {
     async function handleChatSubmit() {
         const text = elements.chatInput.value.trim();
         if (!text) return;
+
     
         elements.chatInput.value = '';
         elements.btnSendChat.classList.remove('text-primary-fixed', 'opacity-100');
@@ -790,7 +831,7 @@ if (savedEmail && elements.sidebarUserEmail) {
         
             renderChatSessionsList();
             
-            await fetch("https://aifaqchatbot-production.up.railway.app/update-chat-title", {
+            await fetch("http://127.0.0.1:8000/update-chat-title", {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
@@ -817,13 +858,17 @@ if (savedEmail && elements.sidebarUserEmail) {
         showTypingIndicator();
     
         try {
-            const response = await fetch("https://aifaqchatbot-production.up.railway.app/chat", {
+            const response = await fetch("http://127.0.0.1:8000/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    message: text
+
+                    message: text,
+                
+                    session_id: currentSessionId
+                
                 })
             });
             
@@ -854,7 +899,7 @@ if (downloadBtn) {
             try {
 
                 const response = await fetch(
-                    "https://aifaqchatbot-production.up.railway.app/download-faq-pdf",
+                    "http://127.0.0.1:8000/download-faq-pdf",
                     {
                         method: "POST",
 
@@ -1065,6 +1110,183 @@ if (downloadBtn) {
         });
     }
 
+    if (elements.btnUploadDocument) {
+
+        elements.btnUploadDocument.addEventListener(
+    
+            "click",
+    
+            () => {
+    
+                elements.documentUpload.click();
+    
+            }
+    
+        );
+    
+    }
+
+    if (elements.documentUpload) {
+
+        elements.documentUpload.addEventListener(
+    
+            "change",
+    
+            async () => {
+    
+                try {
+    
+                    const files =
+                        elements.documentUpload.files;
+    
+                    if (!files.length) {
+    
+                        return;
+    
+                    }
+    
+                    const formData =
+                        new FormData();
+    
+                    for (
+    
+                        let i = 0;
+    
+                        i < files.length;
+    
+                        i++
+    
+                    ) {
+    
+                        formData.append(
+                            "files",
+                            files[i]
+                        );
+    
+                    }
+
+                    formData.append(
+                        "session_id",
+                        state.activeChatSession
+                    );
+    
+                    showToast(
+                        "Uploading documents...",
+                        "info"
+                    );
+    
+                    const response =
+                        await fetch(
+    
+                            "http://127.0.0.1:8000/upload-documents",
+    
+                            {
+                                method: "POST",
+    
+                                body: formData
+                            }
+    
+                        );
+    
+                    const data =
+                        await response.json();
+    
+                    if (!response.ok) {
+    
+                        throw new Error(
+                            data.error ||
+                            "Upload failed"
+                        );
+    
+                    }
+    
+                    showToast(
+                        "Documents uploaded successfully.",
+                        "success"
+                    );
+                    
+                    const uploadMessage = data.message;
+                    
+                    const timestamp =
+                        new Date().toLocaleTimeString(
+                            [],
+                            {
+                                hour: "2-digit",
+                                minute: "2-digit"
+                            }
+                        );
+                    
+                    const aiEl =
+                        createMessageElement(
+                            "ai",
+                            uploadMessage,
+                            timestamp
+                        );
+                    
+                    elements.chatMessagesContainer.appendChild(
+                        aiEl
+                    );
+                    
+                    scrollChatToBottom();
+                    
+                    if (
+                        state.activeChatSession
+                    ) {
+                    
+                        saveMessageToDatabase(
+                            state.activeChatSession,
+                            "assistant",
+                            uploadMessage
+                        );
+                    
+                        if (
+                            !state.chatHistory[
+                                state.activeChatSession
+                            ]
+                        ) {
+                    
+                            state.chatHistory[
+                                state.activeChatSession
+                            ] = [];
+                    
+                        }
+                    
+                        state.chatHistory[
+                            state.activeChatSession
+                        ].push(
+                    
+                            {
+                                sender: "ai",
+                    
+                                text: uploadMessage,
+                    
+                                timestamp: timestamp
+                            }
+                    
+                        );
+                    
+                    }
+
+    
+                }
+    
+                catch (error) {
+    
+                    console.error(error);
+    
+                    showToast(
+                        "Document upload failed.",
+                        "error"
+                    );
+    
+                }
+    
+            }
+    
+        );
+    
+    }
+
     // Google Login button event listener
     if (elements.btnGoogleLogin) {
 
@@ -1073,7 +1295,7 @@ if (downloadBtn) {
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
                 options: {
-                    redirectTo: 'https://ai-faq-chatbot-ebon.vercel.app'
+                    redirectTo: 'http://localhost:5500'
                 }
             });
     
