@@ -1,4 +1,68 @@
-myenv/
+# Environment variables and secrets
 .env
+.env.*
+!.env.example
+
+# Python virtual environments
+.venv/
+venv/
+env/
+myenv/
+
+# Python bytecode and caches
 __pycache__/
-*.pyc
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.hypothesis/
+
+# Test coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Python build and packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+
+# Runtime data and generated indexes
+backend/uploads/*
+!backend/uploads/.gitkeep
+*.faiss
+
+# Logs and local databases
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Frontend dependencies and build output
+node_modules/
+.npm/
+.yarn/
+.pnpm-store/
+.parcel-cache/
+.next/
+.nuxt/
+frontend/dist/
+frontend/build/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
