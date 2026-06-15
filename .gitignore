@@ -42,20 +42,17 @@ dist/
 .eggs/
 pip-wheel-metadata/
 
-# =========================
-# Uploads (IGNORE EVERYTHING)
-# =========================
-backend/uploads/
-backend/uploads/**
 
-# =========================
-# Vector stores and indexes
-# =========================
+# Upload folder contents
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Vector store files
 *.faiss
 *.pkl
 *.pickle
-*.index
 *.bin
+*.index
 
 # =========================
 # Databases and logs
