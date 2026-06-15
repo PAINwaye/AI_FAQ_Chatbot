@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sidebarUserEmail: document.getElementById('sidebar-user-email'),
         sidebarChatSessions: document.getElementById('sidebar-chat-sessions'),
         suggestionCards: document.querySelectorAll('.suggestion-card'),
+        suggestionContainer: document.getElementById('suggestion-container'),
         chatScrollBottom: document.getElementById('chat-scroll-bottom'),
         btnNewChat: document.getElementById('btn-new-chat'),
 
@@ -462,6 +463,18 @@ if (savedEmail && elements.sidebarUserEmail) {
             
             });
             
+            if (messages.length === 0) {
+
+                showSuggestions();
+            
+            }
+            
+            else {
+            
+                hideSuggestions();
+            
+            }
+            
             renderChatHistory();
             scrollChatToBottom(true);
             
@@ -502,6 +515,7 @@ if (savedEmail && elements.sidebarUserEmail) {
             
             showToast('New session synchronized.', 'success');
             await selectChatSession(newSession.id, newSession.title);
+            showSuggestions();
             
         } catch (err) {
             console.error(err);
@@ -617,7 +631,7 @@ if (savedEmail && elements.sidebarUserEmail) {
 
         if (sender === 'user') {
             div.innerHTML = `
-                <div class="flex items-start gap-3 max-w-[80%] flex-row-reverse">
+                <div class= "flex justify-end mb-6">
                     <div class="w-8 h-8 rounded-full flex-shrink-0 bg-gradient-to-tr from-secondary-container to-secondary border border-secondary/20 flex items-center justify-center text-xs font-bold text-on-surface shadow-[0_0_10px_rgba(255,255,255,0.05)]">
                         OP
                     </div>
@@ -791,10 +805,116 @@ if (savedEmail && elements.sidebarUserEmail) {
         }
     }
 
+    function showSuggestions() {
+
+        if (elements.suggestionContainer) {
+    
+            elements.suggestionContainer.classList.remove("hidden");
+    
+        }
+    
+    }
+    
+    function hideSuggestions() {
+    
+        if (elements.suggestionContainer) {
+    
+            elements.suggestionContainer.classList.add("hidden");
+    
+        }
+    
+    }
+
+    function createUploadCard(files){
+
+        const div = document.createElement("div");
+    
+        div.className = "flex justify-end mb-6";
+    
+        let rows = "";
+    
+        for(const file of files){
+    
+            rows += `
+            <div class="upload-file-row">
+    
+                <div class="upload-file-icon">
+                    <span class="material-symbols-outlined">
+                        description
+                    </span>
+                </div>
+    
+                <div>
+    
+                    <div class="upload-file-name">
+                        ${file.name}
+                    </div>
+    
+                    <div class="upload-file-type">
+                        ${file.type || "File"}
+                    </div>
+    
+                </div>
+    
+            </div>
+            `;
+        }
+    
+        div.innerHTML = `
+        <div class="flex items-start gap-3 max-w-[80%] flex-row-reverse">
+
+            <div class="
+                w-8 h-8
+                rounded-full
+                flex-shrink-0
+                bg-gradient-to-tr
+                from-secondary-container
+                to-secondary
+                border border-secondary/20
+                flex items-center justify-center
+                text-xs font-bold text-on-surface
+                shadow-[0_0_10px_rgba(255,255,255,0.05)]
+            ">
+                OP
+            </div>
+
+            <div class="flex flex-col items-end">
+
+                <div class="message-bubble-user rounded-xl p-4 text-on-surface text-sm">
+
+                    <div class="upload-card">
+
+                        ${rows}
+
+                        <div class="upload-loader">
+
+                            <div class="upload-dot"></div>
+                            <div class="upload-dot"></div>
+                            <div class="upload-dot"></div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+        `;
+    
+        elements.chatMessagesContainer.appendChild(div);
+    
+        scrollChatToBottom();
+    
+        return div;
+    }
+
     // Trigger user query submitting
     async function handleChatSubmit() {
         const text = elements.chatInput.value.trim();
         if (!text) return;
+        hideSuggestions();
 
     
         elements.chatInput.value = '';
@@ -1134,16 +1254,22 @@ if (downloadBtn) {
     
             async () => {
     
+                let uploadCard;
                 try {
-    
+
                     const files =
                         elements.documentUpload.files;
-    
+                
                     if (!files.length) {
-    
+                
                         return;
-    
+
                     }
+
+                    uploadCard =
+                        createUploadCard(files);
+
+                        
     
                     const formData =
                         new FormData();
@@ -1204,6 +1330,18 @@ if (downloadBtn) {
                         "Documents uploaded successfully.",
                         "success"
                     );
+
+                    uploadCard.querySelector(".upload-loader").innerHTML = `
+                    <div class="flex items-center gap-2 text-green-400 text-sm">
+
+                        <span class="material-symbols-outlined">
+                            check_circle
+                        </span>
+
+                        Uploaded
+
+                    </div>
+                    `;
                     
                     const uploadMessage = data.message;
                     
@@ -1271,14 +1409,27 @@ if (downloadBtn) {
                 }
     
                 catch (error) {
-    
+
                     console.error(error);
-    
+                
                     showToast(
                         "Document upload failed.",
                         "error"
                     );
-    
+                
+                    if (uploadCard) {
+                
+                        uploadCard.querySelector(
+                            ".upload-loader"
+                        ).innerHTML = `
+                            <div class="upload-success"
+                                 style="color:#ff6b6b;">
+                                ✗ Upload Failed
+                            </div>
+                        `;
+                
+                    }
+                
                 }
     
             }
